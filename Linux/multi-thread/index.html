@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Juggming">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Linux - awesome-io</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Linux";
+    var mkdocs_page_input_path = "Linux/multi-thread.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> awesome-io</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../about/">About</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Shell/net-toolsVSiproute2/">Shell</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Linux</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#posix-multi-threading">POSIX Multi-threading</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#_1">基本概念</a></li>
+        
+            <li><a class="toctree-l3" href="#_2">什么是线程？</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">awesome-io</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Linux</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/juggming/juggming.github.io.git/edit/master/docs/Linux/multi-thread.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="posix-multi-threading">POSIX Multi-threading</h1>
+<h3 id="_1">基本概念</h3>
+<p>在共享内存的多处理器架构体系中，线程可以用来实现并行性。在历史上，硬件供应商已经实现了自己的专有版本的线程模型，这使得可移植性成为了软件开发者的关注点。对于UNIX系统，一个标准的C语言线程编程接口由IEEE POSIX 1003.1C标准定义了。坚持这个标准的实现被称为POSIX线程或者Pthreads。</p>
+<p>本教程会先介绍使用Pthread的概念、动机以及设计注意事项。然后会介绍Pthreads API中的三个主要类的例程：线程管理、互斥变量以及条件变量。示例代码用于演示如何使用大部分Pthread编程初学者会用到的Pthreads接口。这个教程最后会讨论LLNL的细节，以及如何混合MPI和pthreads。当然还包含一些使用C语言编写的练习题。</p>
+<p>水平/先决条件：本教程是为那些打算使用pthreads进行并行编程的初学者而写。初学者需要了解基本的使用C语言进行并行编程的概念。</p>
+<h3 id="_2">什么是线程？</h3>
+<ul>
+<li>从技术上讲，线程被定义为一个独立地指令流，可以被调度为由操作系统运行。但是这是什么意思呢？</li>
+<li>对于软件开发者，独立于主程序运行的“过程”的改变就是一个对线程很好的描述</li>
+<li>进一步定义，想象这样一个主程序（a.out）包含一系列的执行过程。然后想象所有的这些过程都能够同时和/或者独立地被操作系统调用运行。那么这样一个程序就能称为是多线程程序。
+这是如何完成的呢？</li>
+<li>在理解一个线程之前，我们需要先了解UNIX进程。进程是由 操作系统创建的，并需要相当数量的资源。通常包含程序资源和程序执行语句等信息，包括：<ul>
+<li>进程ID，进程组ID，用户ID和组ID</li>
+<li>环境</li>
+<li>工作目录</li>
+<li>程序执行流程</li>
+<li>注册环境</li>
+<li>堆</li>
+<li>栈</li>
+<li>文件句柄</li>
+<li>信号处理</li>
+<li>共享库</li>
+<li>进程同步工具（例如消息队列、管道、信号量或者共享内存）。
+<img alt="process" src="../../img/process.gif" /></li>
+</ul>
+</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../../Shell/net-toolsVSiproute2/" class="btn btn-neutral" title="Shell"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/juggming/juggming.github.io.git/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../../Shell/net-toolsVSiproute2/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>

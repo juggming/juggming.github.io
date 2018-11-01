@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Juggming">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Shell - awesome-io</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Shell";
+    var mkdocs_page_input_path = "Shell/net-toolsVSiproute2.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> awesome-io</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../about/">About</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Shell</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#net-tools-vs-iproute2">net-tools VS iproute2</a></li>
+    
+
+    <li class="toctree-l2"><a href="#netstatss">netstat与ss使用对比</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#netstat">netstat的使用与参数</a></li>
+        
+            <li><a class="toctree-l3" href="#ss">ss</a></li>
+        
+            <li><a class="toctree-l3" href="#_1">原理对比</a></li>
+        
+            <li><a class="toctree-l3" href="#arp">ARP操作</a></li>
+        
+            <li><a class="toctree-l3" href="#_2">添加、删除或查看多播地址</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Linux/multi-thread/">Linux</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">awesome-io</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Shell</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/juggming/juggming.github.io.git/edit/master/docs/Shell/net-toolsVSiproute2.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h4 id="net-tools-vs-iproute2">net-tools VS iproute2</h4>
+<ul>
+<li>显示所有已连接的网络接口</li>
+<li>使用<strong>net-tools</strong>：下面的命令显示出所有可用网络接口的列表（无论接口是否激活): <code>ifconfig -a</code></li>
+<li>
+<p>使用<strong>iproute2:</strong>  <code>ip link show</code></p>
+</li>
+<li>
+<p>激活或停用网络接口</p>
+</li>
+<li>
+<p>使用<strong>net-tools</strong>：</p>
+<p><code>sudo ifconfig eth1 up      # 启用eth1
+ sudo ifconfig eth1 down    # 停用eth1</code></p>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>:</p>
+<p><code>sudo ip link set up eth1
+sudo ip link set down eth1</code></p>
+</li>
+<li>
+<p>配置网络接口的地址</p>
+</li>
+<li>
+<p>使用<strong>net-tools</strong>：<code>sudo ifconfig eth1 10.0.0.1/24</code></p>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>: <code>sudo ip addr add 10.0.0.1/24 dev eth1</code></p>
+</li>
+<li>
+<p>值得注意的是，可以使用iproute2给同一个接口分配多个IP地址，ifconfig则无法这么做。使用ifconfig的变通方案是使用<a href="http://xmodulo.com/2013/02/how-to-assign-multiple-ip-addresses-to-one-network-interface-on-centos.html">IP别名</a>。</p>
+<p><code>sudo ip addr add 10.0.0.1/24 broadcast 10.0.0.255 dev eth1 
+sudo ip addr add 10.0.0.2/24 broadcast 10.0.0.255 dev eth1
+sudo ip addr add 10.0.0.3/24 broadcast 10.0.0.255 dev eth1</code></p>
+</li>
+<li>
+<p>移除网络接口的地址</p>
+</li>
+</ul>
+<blockquote>
+<p>就IP地址的移除而言，除了给接口分配全0地址外，net-tools没有提供任何合适的方法来移除网络接口的IPv4地址。相反，iproute2则能很好地完全。</p>
+</blockquote>
+<ul>
+<li>使用<strong>net-tools</strong>：<ul>
+<li>IPv4: <code>sudo ifconfig eth1 0</code></li>
+<li>IPv6: <code>sudo ifconfig eth1 inet6 del 2002:0db5:0:f102::1/64</code></li>
+</ul>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>：</p>
+<ul>
+<li>IPv4: <code>sudo ip addr del 10.0.0.1/24 dev eth1</code></li>
+<li>IPv6: <code>sudo ip -6 addr del 2002:0db5:0:f102::1/64 dev eth1</code></li>
+</ul>
+</li>
+<li>
+<p>显示网络接口的IPv4和IPv6地址</p>
+</li>
+</ul>
+<blockquote>
+<p>同样，如果接口分配了多个IP地址，iproute2会显示出所有地址，而net-tools只能显示一个IP地址。</p>
+</blockquote>
+<ul>
+<li>使用<strong>net-tools</strong>：<code>ifconfig eth1</code></li>
+<li>
+<p>使用<strong>iproute2</strong>：</p>
+<ul>
+<li>IPv4: <code>ip addr show dev eth1</code></li>
+<li>IPv6: <code>ip -6 addr show dev eth1</code></li>
+</ul>
+</li>
+<li>
+<p>为网络接口分配IPv6地址: net-tools和iproute2都允许用户为一个接口添加多个IPv6地址</p>
+</li>
+<li>
+<p>使用<strong>net-tools</strong>：</p>
+<p><code>sudo ifconfig eth1 inet6 add 2002:0db5:0:f102::1/64
+ sudo ifconfig eth1 inet6 add 2003:0db5:0:f102::1/64</code></p>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>：</p>
+<p><code>sudo ip -6 addr add 2002:0db5:0:f102::1/64 dev eth1 
+ sudo ip -6 addr add 2003:0db5:0:f102::1/64 dev eth1</code></p>
+</li>
+<li>
+<p>改变网络接口的MAC地址</p>
+</li>
+</ul>
+<blockquote>
+<p>使用下面的命令可<a href="http://xmodulo.com/2014/02/spoof-mac-address-network-interface-linux.html">篡改网络接口的MAC地址</a>，请注意在更改MAC地址前，需要停用接口。</p>
+</blockquote>
+<ul>
+<li>使用<strong>net-tools</strong>：<code>sudo ifconfig eth1 hw ether 08:00:27:75:2a:66</code></li>
+<li>
+<p>使用<strong>iproute2</strong>： <code>sudo ip link set dev eth1 address 08:00:27:75:2a:67</code></p>
+</li>
+<li>
+<p>查看IP路由表：</p>
+</li>
+</ul>
+<blockquote>
+<p>net-tools中有两个选择来显示内核的IP路由表：route和netstat。在iproute2中，使用命令ip route。</p>
+</blockquote>
+<ul>
+<li>使用<strong>net-tools</strong>：<ul>
+<li><code>route -n</code></li>
+<li><code>netstat -rn</code></li>
+</ul>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>：<code>ip route show</code></p>
+</li>
+<li>
+<p>添加和修改默认路由</p>
+</li>
+</ul>
+<blockquote>
+<p>这里的命令用来添加或修改内核IP路由表中的默认路由规则。请注意在net-tools中可通过添加新的默认路由、删除旧的默认路由来实现修改默认路由。在iproute2使用ip route命令来代替。</p>
+</blockquote>
+<ul>
+<li>
+<p>使用<strong>net-tools</strong>：</p>
+<p><code>sudo route add default gw 192.168.1.2 eth0
+sudo route del default gw 192.168.1.1 eth0</code></p>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>:</p>
+<p><code>sudo ip route add default via 192.168.1.2 dev eth0 
+sudo ip route replace default via 192.168.1.2 dev eth0</code></p>
+</li>
+<li>
+<p>添加和移除静态路由: 使用下面命令添加或移除一个静态路由。</p>
+</li>
+<li>
+<p>使用<strong>net-tools</strong>：</p>
+<p><code>sudo route add -net 172.16.32.0/24 gw 192.168.1.1 dev eth0 
+ sudo route del -net 172.16.32.0/24</code></p>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>：</p>
+<p><code>sudo ip route add 172.16.32.0/24 via 192.168.1.1 dev eth0 
+ sudo ip route del 172.16.32.0/24</code></p>
+</li>
+</ul>
+<h3 id="netstatss">netstat与ss使用对比</h3>
+<h4 id="netstat">netstat的使用与参数</h4>
+<ul>
+<li>netstat参数和使用：常用参数-anplt<ul>
+<li>-a 显示所有活动的连接以及本机侦听的TCP、UDP端口</li>
+<li>-l 显示监听的server port</li>
+<li>-n 直接使用IP地址，不通过域名服务器</li>
+<li>-p 正在使用Socket的程序PID和程序名称</li>
+<li>-r 显示路由表</li>
+<li>-t 显示TCP传输协议的连线状况</li>
+<li>-u 显示UDP传输协议的连线状况</li>
+<li>-w 显示RAW传输协议的连线状况</li>
+</ul>
+</li>
+</ul>
+<h4 id="ss">ss</h4>
+<ul>
+<li>
+<p>ss（socket statistics）参数和使用：常用参数和netstat类似，如-anp</p>
+<ul>
+<li>-a显示所有的sockets</li>
+<li>-l显示正在监听的</li>
+<li>-n显示数字IP和端口，不通过域名服务器</li>
+<li>-p显示使用socket的对应的程序</li>
+<li>-t只显示TCP sockets</li>
+<li>-u只显示UDP sockets</li>
+<li>-4 -6 只显示v4或v6V版本的sockets</li>
+<li>-s打印出统计信息。这个选项不解析从各种源获得的socket。对于解析/proc/net/top大量的sockets计数时很有效</li>
+<li>-0 显示PACKET sockets</li>
+<li>-w 只显示RAW sockets</li>
+<li>-x只显示UNIX域sockets</li>
+<li>-r尝试进行域名解析，地址/端口</li>
+</ul>
+</li>
+<li>
+<p>统计信息：</p>
+</li>
+<li>
+<p>ss还可以使用IP地址筛选如ss src xxxxIP:port，以及使用端口筛选ss dport OP PORT，OP支持的运算符有le ge eq ne lt gt。</p>
+</li>
+</ul>
+<h4 id="_1">原理对比</h4>
+<p>ss比netstat快的主要原因是，netstat是遍历/proc下面每个PID目录，ss直接读/proc/net下面的统计信息。所以ss执行的时候消耗资源以及消耗的时间都比netstat少很多。</p>
+<p>当服务器的socket连接数量非常大时（如上万个），无论是使用netstat命令还是直接cat /proc/net/tcp执行速度都会很慢，相比之下ss可以节省很多时间。ss快的秘诀在于，它利用了TCP协议栈中tcp_diag，这是一个用于分析统计的模块，可以获得Linux内核中的第一手信息。如果系统中没有tcp_diag，ss也可以正常运行，只是效率会变得稍微慢但仍然比netstat要快。</p>
+<p>同样的大量socket连接情况下，netstat和ss获取同样的统计数据时的耗时，ss明显比netstat少很多。我们也可以简单测试一下在少数socket情况下（基本无差别）：</p>
+<p>time netstat -atn以及time ss -atn对比</p>
+<p>netstat属于net-tools工具集，ss属于ipoute工具集。替换方案如下：</p>
+<h4 id="arp">ARP操作</h4>
+<ul>
+<li>查看ARP</li>
+<li>使用<strong>net-tools</strong>: <code>arp -an</code></li>
+<li>
+<p>使用<strong>iproute2</strong>: <code>ip neigh</code></p>
+</li>
+<li>
+<p>添加或删除静态ARP项</p>
+</li>
+<li>
+<p>使用<strong>net-tools</strong>：</p>
+<p><code>sudo arp -s 192.168.1.100 00:0c:29:c0:5a:ef 
+ sudo arp -d 192.168.1.100</code></p>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>：</p>
+<p><code>sudo ip neigh add 192.168.1.100 lladdr 00:0c:29:c0:5a:ef dev eth0 
+sudo ip neigh del 192.168.1.100 dev eth0</code></p>
+<p>​</p>
+</li>
+</ul>
+<h4 id="_2">添加、删除或查看多播地址</h4>
+<ul>
+<li>
+<p>使用下面的命令配置或查看网络接口上的多播地址。</p>
+</li>
+<li>
+<p>使用<strong>net-tools</strong>:</p>
+<p><code>sudo ipmaddr add 33:44:00:00:00:01 dev eth0 
+sudo ipmaddr del 33:44:00:00:00:01 dev eth0 ipmaddr show dev eth0 netstat -g</code></p>
+</li>
+<li>
+<p>使用<strong>iproute2</strong>：</p>
+<p><code>sudo ip maddr add 33:44:00:00:00:01 dev eth0 
+ sudo ip maddr del 33:44:00:00:00:01 dev eth0$ ip maddr list dev eth0</code></p>
+<p>​</p>
+</li>
+</ul>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../Linux/multi-thread/" class="btn btn-neutral float-right" title="Linux">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../../about/" class="btn btn-neutral" title="About"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/juggming/juggming.github.io.git/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../../about/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../../Linux/multi-thread/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>

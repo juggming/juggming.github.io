@@ -1,0 +1,11 @@
+--2018-11-01 11:44:22--  https://i2.wp.com/blog4jimmy.com/wp-content/uploads/2018/01/process.gif
+正在解析主机 i2.wp.com (i2.wp.com)... 192.0.77.2
+正在连接 i2.wp.com (i2.wp.com)|192.0.77.2|:443... 已连接。
+已发出 HTTP 请求，正在等待回应... 200 OK
+长度：15760 (15K) [image/gif]
+正在保存至: “process.gif”
+
+     0K .......... .....                                      100%  350K=0.04s
+
+2018-11-01 11:44:23 (350 KB/s) - 已保存 “process.gif” [15760/15760])
+
