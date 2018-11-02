@@ -8,7 +8,7 @@
   
   <meta name="author" content="Juggming">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Shell - awesome-io</title>
+  <title>iproute2 - awesome-io</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Shell";
+    var mkdocs_page_name = "iproute2";
     var mkdocs_page_input_path = "Shell/net-toolsVSiproute2.md";
     var mkdocs_page_url = null;
   </script>
@@ -55,40 +55,54 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="../../about/">About</a>
-	    </li>
-          
-            <li class="toctree-l1 current">
-		
-    <a class="current" href="./">Shell</a>
+    <span class="caption-text">Linux</span>
     <ul class="subnav">
-            
-    <li class="toctree-l2"><a href="#net-tools-vs-iproute2">net-tools VS iproute2</a></li>
-    
-
-    <li class="toctree-l2"><a href="#netstatss">netstat与ss使用对比</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l3" href="#netstat">netstat的使用与参数</a></li>
-        
-            <li><a class="toctree-l3" href="#ss">ss</a></li>
-        
-            <li><a class="toctree-l3" href="#_1">原理对比</a></li>
-        
-            <li><a class="toctree-l3" href="#arp">ARP操作</a></li>
-        
-            <li><a class="toctree-l3" href="#_2">添加、删除或查看多播地址</a></li>
-        
-        </ul>
-    
-
+                <li class="">
+                    
+    <a class="" href="../../Linux/multi-thread/">多线程</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../Linux/about/">网络编程</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../Linux/ringbuffer/">DataStructure</a>
+                </li>
     </ul>
 	    </li>
           
             <li class="toctree-l1">
 		
-    <a class="" href="../../Linux/multi-thread/">Linux</a>
+    <span class="caption-text">Shell</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <span class="caption-text">Commands</span>
+    <ul class="subnav">
+                <li class="toctree-l3 current">
+                    
+    <a class="current" href="./">iproute2</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l4"><a href="#net-tools-vs-iproute2">net-tools VS iproute2</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l5" href="#netstatss">netstat与ss使用对比</a></li>
+        
+            <li><a class="toctree-l5" href="#arp">ARP操作</a></li>
+        
+            <li><a class="toctree-l5" href="#_2">添加、删除或查看多播地址</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
 	    </li>
           
         </ul>
@@ -112,8 +126,16 @@
     <li><a href="../..">Docs</a> &raquo;</li>
     
       
+        
+          <li>Commands &raquo;</li>
+        
+      
+        
+          <li>Shell &raquo;</li>
+        
+      
     
-    <li>Shell</li>
+    <li>iproute2</li>
     <li class="wy-breadcrumbs-aside">
       
         <a href="https://github.com/juggming/juggming.github.io.git/edit/master/docs/Shell/net-toolsVSiproute2.md"
@@ -126,7 +148,7 @@
           <div role="main">
             <div class="section">
               
-                <h4 id="net-tools-vs-iproute2">net-tools VS iproute2</h4>
+                <h1 id="net-tools-vs-iproute2">net-tools VS iproute2<a class="headerlink" href="#net-tools-vs-iproute2" title="Permanent link">&para;</a></h1>
 <ul>
 <li>显示所有已连接的网络接口</li>
 <li>使用<strong>net-tools</strong>：下面的命令显示出所有可用网络接口的列表（无论接口是否激活): <code>ifconfig -a</code></li>
@@ -270,8 +292,8 @@ sudo ip route replace default via 192.168.1.2 dev eth0</code></p>
  sudo ip route del 172.16.32.0/24</code></p>
 </li>
 </ul>
-<h3 id="netstatss">netstat与ss使用对比</h3>
-<h4 id="netstat">netstat的使用与参数</h4>
+<h2 id="netstatss">netstat与ss使用对比<a class="headerlink" href="#netstatss" title="Permanent link">&para;</a></h2>
+<h3 id="netstat">netstat的使用与参数<a class="headerlink" href="#netstat" title="Permanent link">&para;</a></h3>
 <ul>
 <li>netstat参数和使用：常用参数-anplt<ul>
 <li>-a 显示所有活动的连接以及本机侦听的TCP、UDP端口</li>
@@ -285,7 +307,7 @@ sudo ip route replace default via 192.168.1.2 dev eth0</code></p>
 </ul>
 </li>
 </ul>
-<h4 id="ss">ss</h4>
+<h3 id="ss">ss<a class="headerlink" href="#ss" title="Permanent link">&para;</a></h3>
 <ul>
 <li>
 <p>ss（socket statistics）参数和使用：常用参数和netstat类似，如-anp</p>
@@ -311,13 +333,13 @@ sudo ip route replace default via 192.168.1.2 dev eth0</code></p>
 <p>ss还可以使用IP地址筛选如ss src xxxxIP:port，以及使用端口筛选ss dport OP PORT，OP支持的运算符有le ge eq ne lt gt。</p>
 </li>
 </ul>
-<h4 id="_1">原理对比</h4>
+<h3 id="_1">原理对比<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
 <p>ss比netstat快的主要原因是，netstat是遍历/proc下面每个PID目录，ss直接读/proc/net下面的统计信息。所以ss执行的时候消耗资源以及消耗的时间都比netstat少很多。</p>
 <p>当服务器的socket连接数量非常大时（如上万个），无论是使用netstat命令还是直接cat /proc/net/tcp执行速度都会很慢，相比之下ss可以节省很多时间。ss快的秘诀在于，它利用了TCP协议栈中tcp_diag，这是一个用于分析统计的模块，可以获得Linux内核中的第一手信息。如果系统中没有tcp_diag，ss也可以正常运行，只是效率会变得稍微慢但仍然比netstat要快。</p>
 <p>同样的大量socket连接情况下，netstat和ss获取同样的统计数据时的耗时，ss明显比netstat少很多。我们也可以简单测试一下在少数socket情况下（基本无差别）：</p>
 <p>time netstat -atn以及time ss -atn对比</p>
 <p>netstat属于net-tools工具集，ss属于ipoute工具集。替换方案如下：</p>
-<h4 id="arp">ARP操作</h4>
+<h2 id="arp">ARP操作<a class="headerlink" href="#arp" title="Permanent link">&para;</a></h2>
 <ul>
 <li>查看ARP</li>
 <li>使用<strong>net-tools</strong>: <code>arp -an</code></li>
@@ -339,7 +361,7 @@ sudo ip neigh del 192.168.1.100 dev eth0</code></p>
 <p>​</p>
 </li>
 </ul>
-<h4 id="_2">添加、删除或查看多播地址</h4>
+<h2 id="_2">添加、删除或查看多播地址<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p>使用下面的命令配置或查看网络接口上的多播地址。</p>
@@ -363,10 +385,8 @@ sudo ipmaddr del 33:44:00:00:00:01 dev eth0 ipmaddr show dev eth0 netstat -g</co
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../Linux/multi-thread/" class="btn btn-neutral float-right" title="Linux">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-      
-        <a href="../../about/" class="btn btn-neutral" title="About"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../Linux/ringbuffer/" class="btn btn-neutral" title="DataStructure"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -394,10 +414,8 @@ sudo ipmaddr del 33:44:00:00:00:01 dev eth0 ipmaddr show dev eth0 netstat -g</co
           <a href="https://github.com/juggming/juggming.github.io.git/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../../about/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../../Linux/ringbuffer/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
-      
-        <span style="margin-left: 15px"><a href="../../Linux/multi-thread/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
