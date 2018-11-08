@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Juggming">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>创建、执行与消亡 - awesome-io</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "\u521b\u5efa\u3001\u6267\u884c\u4e0e\u6d88\u4ea1";
+    var mkdocs_page_input_path = "kernel/PSCreateExecExit.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> awesome-io</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Linux</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Linux/multi-thread/">多线程</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../Linux/about/">网络编程</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../Linux/ringbuffer/">DataStructure</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">进程调度</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../LinuxProcess/">进程的基本概念</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">创建、执行与消亡</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#_1">进程创建</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_2">目标程序的执行</a></li>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../PSfork-vfork-clone/">fork-vfork-clone</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Shell</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <span class="caption-text">Commands</span>
+    <ul class="subnav">
+                <li class="toctree-l3">
+                    
+    <a class="" href="../../Shell/net-toolsVSiproute2/">iproute2</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">awesome-io</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>进程调度 &raquo;</li>
+        
+      
+    
+    <li>创建、执行与消亡</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/juggming/juggming.github.io.git/edit/master/docs/kernel/PSCreateExecExit.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p>在linux系统中，第一个进程（init进程）是与生俱来的，是内核设计者刻意安排的。除此以外，一个进程必须从当前已经存在的某个进程“复制”出来，而不能凭空“创造”出来。</p>
+<p>linux将进程的创建与目标程序的执行分两步走。</p>
+<h3 id="_1">进程创建<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>此时，子进程有自己的task_struct结构与系统空间堆栈（即进程四要素中的第2和第3个要素），但与父进程共享所有其他资源，比如打开的文件，而且这些文件的当前读写指针也停留在相同的地方(父子进程每个相同的文件描述符共用同一个文件表项)。所以这一步所做的工作是“复制”。为此，linux提供了两个系统调用，<code>fork</code>和<code>clone</code>。区别在于<code>fork</code>是全部复制，父进程的资源通过结构体的复制（可以理解为“深拷贝”）“遗传”给子进程。而<code>clone</code>则是有选择性的复制，而没有复制的数据结构则通过指针的拷贝（可以理解为“浅拷贝”）与父进程共享。在极端情况下，一个进程可以<code>clone</code>出一个线程。另外还有一个<code>vfork</code>系统调用，也不带参数，除了<code>task_struct</code>结构和系统空间堆栈外，所有的资源都是通过指针拷贝与父进程共享，所以<code>vfork</code>复制出来的是线程而不是进程。</p>
+<p>为什么要有复制这一步？所谓复制（“深拷贝”）只是进程基本资源的复制，如<code>task_struct</code>结构、系统空间堆栈、页面表等等；除此以外，其他的资源比如父进程的代码及全局变量并不需要复制，而是以只读的方式共享，仅在需要写时才通过<code>copy on write</code>手段为所涉及的页面建立一个新的副本（这就意味着，当子进程改变一个全局变量时，并不会影响该全局变量在父进程中的值，因为子进程修改的是属于它的副本）。所以复制的代价是很低的，但是通过复制继承下来的资源往往对子进程很有用。比如在client/server系统中的server一方的实现中，<code>fork</code>或<code>clone</code>常常是最自然、最有效的手段。</p>
+<h3 id="_2">目标程序的执行<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>大多数情况下，复制出一个子进程后有新的目标程序等待子进程去执行（但也不一定，比如子进程共享父进程的代码段），这种情况下，复制完成以后，子进程一般要与父进程分道扬镳走自己的路了。为此，linux提供了一个系统调用<code>execve</code>，让一个进程执行一个以文件形式存在的可执行程序映像。既然子进程要走自己的路，那就不要回头了，所以系统调用execve不会返回，而是“壮士一去兮不复返”。</p>
+<p>那么这种分两步走有什么好处呢？首先，很多场景只需单独使用<code>fork</code>，其后并不跟<code>execve</code>；其次，分两步走是的子进程在执行exceve之前有机会修改自己的属性（比如IO重定向、用户ID，信号安排等）。</p>
+<p>创建了子进程后，父进程该何去何从？一般有三个选择。第一是继续走自己的路，与子进程分道扬镳。只是如果子进程先于父进程去世，则由内核给父进程发一个报丧的信号（SIGCHILD）。第二个是停下了，也就是进入睡眠状态，等待子进程完成自己的使命而最终去世，然后父进程再运行。linux为此提供了两个系统调用，wait4（等待某个特定的子进程去世）和wait3（等待任何一个子进程去世）。第三个选择是“自行退出历史舞台”，结束自己的生命。linux为此提供了一个系统调用exit，(不过代码中一般很少直接调用exit，而是通过return语句从main函数中返回，gcc在编译和链接时会自动加上exit，详见APUE第7章)。</p>
+<p>需要说明一点：父进程通过fork系统调用复制出一个子进程后，由于子进程有了自己的task_struct结构，所以子进程就会被调度器看到并可能被调度执行，且与父进程具有相同的返回地址（即返回到调用fork的下一条指令），所以当父进程和子进程受调度继续运行而从内核空间返回到用户空间时都返回到同一点上，但二者的返回值不一样，父进程的返回值为子进程的pid，而子进程的返回值为0。因此，代码中可以根据返回值来判断父子进程。</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../PSfork-vfork-clone/" class="btn btn-neutral float-right" title="fork-vfork-clone">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../LinuxProcess/" class="btn btn-neutral" title="进程的基本概念"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/juggming/juggming.github.io.git/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../LinuxProcess/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../PSfork-vfork-clone/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>

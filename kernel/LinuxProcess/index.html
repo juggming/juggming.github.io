@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Juggming">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>进程的基本概念 - awesome-io</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "\u8fdb\u7a0b\u7684\u57fa\u672c\u6982\u5ff5";
+    var mkdocs_page_input_path = "kernel/LinuxProcess.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> awesome-io</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Linux</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Linux/multi-thread/">多线程</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../Linux/about/">网络编程</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../Linux/ringbuffer/">DataStructure</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">进程调度</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">进程的基本概念</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#1">1 进程四要素</a></li>
+    
+
+    <li class="toctree-l3"><a href="#2-current">2 系统空间堆栈与current</a></li>
+    
+
+    <li class="toctree-l3"><a href="#3-task_struct">3 task_struct</a></li>
+    
+
+    <li class="toctree-l3"><a href="#4">4 与进程相关的“组织”</a></li>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../PSCreateExecExit/">创建、执行与消亡</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../PSfork-vfork-clone/">fork-vfork-clone</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Shell</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <span class="caption-text">Commands</span>
+    <ul class="subnav">
+                <li class="toctree-l3">
+                    
+    <a class="" href="../../Shell/net-toolsVSiproute2/">iproute2</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">awesome-io</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>进程调度 &raquo;</li>
+        
+      
+    
+    <li>进程的基本概念</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/juggming/juggming.github.io.git/edit/master/docs/kernel/LinuxProcess.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h3 id="1">1 进程四要素<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>可执行程序</li>
+<li>进程专用的系统空间堆栈</li>
+<li>task_struct结构</li>
+<li>独立的用户空间：<code>mm_struct</code>结构</li>
+</ul>
+<h3 id="2-current">2 系统空间堆栈与current<a class="headerlink" href="#2-current" title="Permanent link">&para;</a></h3>
+<p>每个进程都有一个task_struct结构与系统空间堆栈，这二者缺一不可，并且具有紧密的联系，所以物理存储空间也连在一起。内核在为每个进程分配一个task_struct结构分配空间时，实际上分配了两个连续的物理页面（共8192字节）。这两个页面的底部用作进程的task_struct结构，结构之上的空间就用作系统空间堆栈，如下图：</p>
+<p><img alt="task_struct与系统空间堆栈" src="https://oscimg.oschina.net/oscnet/e7bc057a29c84f3f71cc1abce93bb3a50d3.jpg" /></p>
+<p>注意：系统空间堆栈不像用户空间堆栈那样可以在运行时动态扩展，而是静态地确定了的。所以，在中断服务程序、内核软中断服务程序以及其他设备驱动程序的设计中，不能让函数嵌套太深，也不能使用太多、太大的局部变量，防止系统空间堆栈被耗尽。 task_struct与进程系统空间的这种特殊安排，决定了内核中一些宏操作的定义。 首先是为进程分配和释放task_struct结构的操作：</p>
+<pre class="codehilite"><code>    &lt;include/asm/processor.h&gt;
+    #define THREAD_SIZE (2*PAGE_SIZE)
+    #define alloc_task_struct() ((struct task_struct *) _get_free_pages(GFP_KERNEL,1))
+    #define free_task_struct(p) free_pages((unsigned long) (p), 1)</code></pre>
+
+
+<p>THREAD_SIZE被定义成两个page的大小。
+alloc_task_struct()分配了两个连续页面，并在两个页面的起始地址处，安放task_struct结构。注意，_get_free_pages中的第二个参数1表示分配2^1即两个页面。 其次，当进程在系统空间运行时，常常需要访问当前进程的task_struct结构，为此目的，内核定义了一个宏current。定义如下：</p>
+<pre class="codehilite"><code>    &lt;include/asm/current.h&gt;
+    static inline struct task_struct * get_current(void)
+    {
+        struct task_struct *current;
+        __asm__(&quot;andl %%esp,%0; &quot;:&quot;=r&quot; (current) : &quot;0&quot; (~8191UL));
+        return current;
+     } 
+
+    #define current get_current()</code></pre>
+
+
+<p>current最终调用get_current()函数，后者使用了嵌入式汇编代码，相信大家现在读来已经不是什么难事了。这里的输入部是一个立即数（~8191UL）即8191取反（取反之后为0xfffffe00），输出部为局部变量current，输入部与输出部共用同一个寄存器。指令部中，将进程系统空间堆栈的栈顶指针esp与0xfffffe000位与。因为task_struct的地址与8K（两个页面的大小）的边界对齐，而进程系统空间堆栈栈顶指针esp在8K空间之内，0xfffffe00为8K减1再求反，用作掩码，esp与该掩码位与即可得到esp所在8K空间的起始地址，即task_struct结构的地址。 与此类似，在进入中断和系统调用时所引用的宏操作GET_CURRENT，在<include/asm/hw_irq.h>中定义：</p>
+<pre class="codehilite"><code>    #define GET_CURRENT \
+        &quot;movl %esp, %ebx\n\t&quot; \
+        &quot;andl $-8192, %ebx\n\t&quot;</code></pre>
+
+
+<h3 id="3-task_struct">3 task_struct<a class="headerlink" href="#3-task_struct" title="Permanent link">&para;</a></h3>
+<p>task_struct结构定义在<include/linux/sched.h>文件中：</p>
+<pre class="codehilite"><code>    struct task_struct {
+        volatile long state;
+        unsigned long flags;
+        int sigpending;
+        mm_segment_t addr_limit;
+        struct exec_domain *exec_domain;
+        volatile long need_resched;
+        unsigned long ptrace;
+        int lock_depth;
+        long counter;
+        long nice;
+        unsigned long policy;
+        struct mm_struct *mm;
+        int has_cpu, processor;
+        unsigned long cpus_allowed;
+        struct list_head run_list;
+        unsigned long sleep_time;
+        struct task_struct *next_task, *prev_task;
+        struct mm_struct *active_mm;
+        struct linux_binfmt *binfmt;
+        int exit_code, exit_signal;
+        int pdeath_signal; 
+        unsigned long personality;
+        int dumpable:1;
+        int did_exec:1;
+        pid_t pid;
+        pid_t pgrp;
+        pid_t tty_old_pgrp;
+        pid_t session;
+        pid_t tgid;
+        int leader;
+        struct task_struct *p_opptr, *p_pptr, *p_cptr, *p_ysptr, *p_osptr;
+        struct list_head thread_group;
+        struct task_struct *pidhash_next;
+        struct task_struct **pidhash_pprev;
+        wait_queue_head_t wait_chldexit;
+        struct semaphore *vfork_sem;
+        unsigned long rt_priority;
+        unsigned long it_real_value, it_prof_value, it_virt_value;
+        unsigned long it_real_incr, it_prof_incr, it_virt_incr;
+        struct timer_list real_timer;
+        struct tms times;
+        unsigned long start_time;
+        long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
+        unsigned long min_flt, maj_flt, nswap, cmin_flt, cmaj_flt, cnswap;
+        int swappable:1;
+        uid_t uid,euid,suid,fsuid;
+        gid_t gid,egid,sgid,fsgid;
+        int ngroups;
+        gid_t   groups[NGROUPS];
+        kernel_cap_t   cap_effective, cap_inheritable, cap_permitted;
+        int keep_capabilities:1;
+        struct user_struct *user;
+        struct rlimit rlim[RLIM_NLIMITS];
+        unsigned short used_math;
+        char comm[16];
+        int link_count;
+        struct tty_struct *tty;
+        unsigned int locks; 
+        struct sem_undo *semundo;
+        struct sem_queue *semsleeping;
+        struct thread_struct thread;
+        struct fs_struct *fs;
+        struct files_struct *files;
+        spinlock_t sigmask_lock;
+        struct signal_struct *sig;
+        sigset_t blocked;
+        struct sigpending pending;
+        unsigned long sas_ss_sp;
+        size_t sas_ss_size;
+        int (*notifier)(void *priv);
+        void *notifier_data;
+        sigset_t *notifier_mask;
+        u32 parent_exec_id;
+        u32 self_exec_id;
+        spinlock_t alloc_lock;
+    };</code></pre>
+
+
+<p><strong>state:</strong> 表示进程的当前运行状态，进程的所有可能状态定义在同一个文件中：</p>
+<pre class="codehilite"><code>    #define TASK_RUNNING        0
+    #define TASK_INTERRUPTIBLE  1
+    #define TASK_UNINTERRUPTIBLE    2
+    #define TASK_ZOMBIE     4
+    #define TASK_STOPPED        8</code></pre>
+
+
+<p><em>TASK_RUNNING</em> 状态并不是表示一个进程正在运行，或者是这个进程就是“当前进程”，而是表示这个进程可被调度执行而成为当前进程，是进程表达了希望被调度运行的意愿。当进程处于此状态时，表示进程已经准备就绪或者可以被执行了，内核会将该进程的task_struct结构通过其队列头run_list链入一个“可执行队列”，至于最终调度运行谁，内核会根据调度策略从“可执行队列”中挑选一个进程来调度运行。
+<em>TASK_INTERRUPTIBLE</em>和<em>TASK_UNINTERRUPTIBLE</em> 都表示进程处于睡眠状态。不过前者表示浅度睡眠，可以被信号（也成为软中断）唤醒；后者表示深度睡眠而不受信号的打扰。这里的INTERRUPTIBLE或UNINTERRUPTIBLE与“中断”毫无关系，而只是说睡眠能否因其他时间而中断。内核中提供了不同的函数让一个进程进入不同程度的睡眠或将进程从睡眠中唤醒。具体来说，sleep_on和wake_up用于深度睡眠；而interruptible_sleep_on和interruptible_wake_up则用于浅度睡眠。 <em>TASK_ZOMBIE</em> 状态表示进程已经去世（exit）而户口（task_struct）尚未注销。 <em>TASK_STOPPED</em> 主要用于调试目的。进程接收到一个SIGSTOP信号后就将运行状态改成TASK_STOPPED而进入挂起状态，然后在接收到一个SIGCONT信号时又恢复继续运行。</p>
+<p><strong>flag：</strong> 与进程管理有关的信息，对应的标志位在同一个文件中定义：</p>
+<pre class="codehilite"><code>    /*
+     * Per process flags
+     */
+    #define PF_ALIGNWARN    0x00000001  /* Print alignment warning msgs */
+                                        /* Not implemented yet, only for 486*/
+    #define PF_STARTING     0x00000002  /* being created */
+    #define PF_EXITING      0x00000004  /* getting shut down */
+    #define PF_FORKNOEXEC   0x00000040  /* forked but didn't exec */
+    #define PF_SUPERPRIV    0x00000100  /* used super-user privileges */
+    #define PF_DUMPCORE     0x00000200  /* dumped core */
+    #define PF_SIGNALED     0x00000400  /* killed by a signal */
+    #define PF_MEMALLOC     0x00000800  /* Allocating memory */
+    #define PF_VFORK        0x00001000  /* Wake up parent in mm_release */        
+    #define PF_USEDFPU  0x00100000      /* task used FPU this quantum (SMP) */</code></pre>
+
+
+<p><em>PF_MEMALLOC</em>我们已经在内存页面分配时见过了，其他的标志位请参考注释。</p>
+<p><strong>sigpending：</strong> 表示进程收到了信号但尚未处理，与这个标志相联系的是与信号队列有关的sigqueue、sigqueue_tail、sig等指针以及sigmask_lock、signal、blocked等成分。</p>
+<p><strong>counter：</strong> 与调度有关。</p>
+<p><strong>need_resched：</strong> 与调度有关，表示CPU从系统空间返回到用户空间前夕要进行一次调度。 上述字段反应了进程的动态特征，下面这些字段则反应了进程的静态特征。</p>
+<p><strong>addr_limit：</strong> 虚存地址的空间上限。对进程而言就是其用户空间的上限，所以为0xbfffffff；对内核进程而言则是系统空间的上限为0xffffffff。</p>
+<p><strong>personality：</strong> 看过APUE的都知道，Unix有许多不同的版本和变种，应用程序也就有各自的适用范围。比如Unix SVR4的应用程序未必与为linux开发的其他软件完全兼容。所以每个进程都有其与生俱来的“个性“。文件<include/linux/personality.h>定义了相关的常数。</p>
+<p><strong>exec_domain:</strong> 除了personality外，应用程序还有一些其他版本间的差异，从而形成了不同的“执行域”。这个指针就指向描述本进程所属执行域的数据结构。</p>
+<p><strong>binfmt：</strong> 应用程序的文件格式，如a.out、elf等。</p>
+<p><strong>exit_code：</strong> 退出码，与之相关的exit_signal、pdeath_signal详见《系统调用exit与wait4》。</p>
+<p><strong>pid：</strong> 进程号。</p>
+<p><strong>pgrp：</strong> 每个进程除了有一个进程号以外，还属于一个进程组。pgrp指向进程所属的进程组ID。</p>
+<p><strong>session：</strong> 会话。当一个用户登录到系统后，就开始了一个会话，会话是一个或多个进程组的集合。</p>
+<p><strong>leader：</strong> 每个会话都一个会话首进程（session leader）。</p>
+<p><strong>priority、rt_priority：</strong> 优先级别以及“实时”优先级别。</p>
+<p><strong>policy：</strong> 本进程的调度策略。</p>
+<p><strong>parent_exec_id、self_exec_id：</strong> 与会话（session）有关。</p>
+<p><strong>uid、euid、suid、fsuid、gid、egid、sgid、fsgid：</strong> 进程所属的用户ID、有效用户ID、保存的设置用户ID、用于文件系统访问检查的用户ID，组ID、有效组ID、保存的设置组ID，用于文件系统访问检查的组ID。参考后面的内容（也可以参考APUE第二版的第8章）。</p>
+<p><strong>cap_effective、cap_inheritable、cap_permitted：</strong> 一般进程都不能为所欲为，而是各自被赋予了各种不同的权限。将权利细分，而不是笼统的取决于一个进程是否是“特权进程”，这也是linux安全机制的基础之一（另一个是文件访问权限的设置）。<include/linux/capability.h>定义了许多这样的权限。同时内核定义了一个内联函数capable，用来检查进程是否具有某种权限。</p>
+<p><strong>user：</strong> 指向一个user_struct结构，该数据结构代表着进程所属的用户。</p>
+<p><strong>rlim：</strong> 这是一个结构数组，表明进程对各种资源的使用数量所受的限制。我们在第二章用户堆栈的扩展中已经看到了对这种限制的应用（需要获取用户空间堆栈大小的限制等）。数据结构rlimit定义在<include/linux/resource.h>文件中：</p>
+<pre class="codehilite"><code>    struct rlimit {
+        unsigned long   rlim_cur;
+        unsigned long   rlim_max;
+    };</code></pre>
+
+
+<p><em>rlim_cur</em> 为“soft limit”，是当前的限制，<em>rlim_max</em> 为“hard limit”，表示最大限制。rlim_cur的取值不能比rlim_max大。</p>
+<h3 id="4">4 与进程相关的“组织”<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<p>每一个进程都不是孤立的存在于系统中，而总是根据不同的目的、关系和需要与其他进程相联系。从内核的角度看，则是要根据不同的目的和性质将每个进程纳入各种组织。</p>
+<p><strong>第一个组织就是进程的“家谱”</strong>。这是一种树形组织，通过p_opptr、p_pptr、p_cptr、p_ysptr和p_osptr构成。其中p_opptr（original parent，生父）与p_pptr（养父）指向父进程，p_cptr（c代表child）指向最“年轻”（最近创建的）的子进程，而p_ysptr（youngest sibling）和p_osptr（oldest sibling）则分别指向其“弟弟”和“哥哥”。这种“家谱”组织示意如下：</p>
+<p><img alt="进程家谱" src="https://oscimg.oschina.net/oscnet/5c213c6934975b33d05a02e6d8a69766a41.jpg" /></p>
+<p>根据p_cptr顺藤摸瓜，一个进程可以找到它所有的子进程。但是想要根据进程号pid找到对应的task_struct还是很难，于是便有了第二个组织。</p>
+<p><strong>第二个组织就是按照进程号pid构成的哈希队列。</strong> 给定pid，通过哈希计算就可以得到进程的task_struct结构在哈希队列中的下标，进而找到进程对应的task_struct结构。哈希表pidhash定义在<kernel/fork.c>中：</p>
+<pre class="codehilite"><code>    struct task_struct *pidhash[PIDHASH_SZ];</code></pre>
+
+
+<p>而PIDHASH_SZ定义在<include/linux/sched.h>中：</p>
+<pre class="codehilite"><code>    #define PIDHASH_SZ (4096 &gt;&gt; 2)</code></pre>
+
+
+<p>可见，哈希表pidhash共有1024个元素，系统同时存在的进程数目不能超过1024个。同时，由于一个指针占4个字节，所以整个哈希表占用4K即一个页面的大小。</p>
+<p>当内核需要遍历每一个进程时，这时就需要用到第三个组织。</p>
+<p><strong>第三个组织是将每个进程链起来的线性队列。</strong> 系统创建的第一个进程为init_task，这个进程就是所有进程的总根，所以它就是这个线性队列的起点。后续每创建一个进程，就通过其task_struct结构中的next_task和prev_task两个指针链入这个队列。</p>
+<p>每个进程必然同时身处这三个组织之中，直到进程消亡时才从这三个队列中摘除。</p>
+<p>在运行过程中，一个进程随时可能链入“可执行队列”中接受系统调度。一个进程只有在“可执行队列“中才有可能受到调度而投入运行。这就是第四个组织。进程通过task_struct结构中run_list链入可执行队列。</p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../PSCreateExecExit/" class="btn btn-neutral float-right" title="创建、执行与消亡">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../../Linux/ringbuffer/" class="btn btn-neutral" title="DataStructure"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/juggming/juggming.github.io.git/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../../Linux/ringbuffer/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../PSCreateExecExit/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>
