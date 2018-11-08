@@ -128,6 +128,11 @@
           
             <li class="toctree-l1">
 		
+    <a class="" href="../../assembly/EmbeddedAssembly/">Assembly</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
     <span class="caption-text">Shell</span>
     <ul class="subnav">
                 <li class="">
@@ -186,14 +191,14 @@
 <p><em>这部分详情请参考APUE（第2版）第8章。</em></p>
 <h2 id="11-exec">1.1 六种exec函数<a class="headerlink" href="#11-exec" title="Permanent link">&para;</a></h2>
 <p>有6种不同的exec函数可供使用，这些函数最终都是通过系统调用execve来实现的：</p>
-<pre class="codehilite"><code>    &lt;unistd.h&gt;
-    int execl(const char *pathname, const char *arg1, ... /* (char*)0 */ );
-    int execlp(const char *filename, const char *arg1, ... /* (char*)0 */ );
-    int execle(const char *pathname, const char *arg1, ... 
-                                                    /* (char*)0, char * const *envp */);
-    int execv(const char *pathname, char * const argv[]);
-    int execvp(const char *filename, char * const argv[]);
-    int execve(const char *pathname, char * const argv[], char * const envp[]);</code></pre>
+<pre class="codehilite"><code class="language-c">&lt;unistd.h&gt;
+int execl(const char *pathname, const char *arg1, ... /* (char*)0 */ );
+int execlp(const char *filename, const char *arg1, ... /* (char*)0 */ );
+int execle(const char *pathname, const char *arg1, ... 
+                                            /* (char*)0, char * const *envp */);
+int execv(const char *pathname, char * const argv[]);
+int execvp(const char *filename, char * const argv[]);
+int execve(const char *pathname, char * const argv[], char * const envp[]);</code></pre>
 
 
 <p>它们间的关系如下图:</p>
@@ -237,22 +242,22 @@
 </ol>
 <p>这里假定execve执行的程序文件为aout格式的，具体来说是aout格式中的“非可重入代码”，即可执行程序包含正文段（text）、数据段（data）和未初始化数据段（bss）。虽然aout格式已非主流，elf才是当前流行的可执行程序文件的格式，但elf格式比较复杂，涉及到动态加载（loader）与动态链接（linker），而aout格式相对简单，用来了解上述问题是比较合适的。这些问题的答案同样适用于elf格式（或其他格式）的可执行文件。</p>
 <p>系统调用execve的内核入口为sys_execve，定义在<arch/kernel/process.c>中：</p>
-<pre class="codehilite"><code>    asmlinkage int sys_execve(struct pt_regs regs)
-    {
-        int error;
-        char * filename;
+<pre class="codehilite"><code class="language-c">asmlinkage int sys_execve(struct pt_regs regs)
+{
+    int error;
+    char * filename;
 
-        filename = getname((char *) regs.ebx);
-        error = PTR_ERR(filename);
-        if (IS_ERR(filename))
-            goto out;
-        error = do_execve(filename, (char **) regs.ecx, (char **) regs.edx, &amp;regs);
-        if (error == 0)
-            current-&gt;ptrace &amp;= ~PT_DTRACE;
-        putname(filename);
-    out:
-        return error;
-    }</code></pre>
+    filename = getname((char *) regs.ebx);
+    error = PTR_ERR(filename);
+    if (IS_ERR(filename))
+        goto out;
+    error = do_execve(filename, (char **) regs.ecx, (char **) regs.edx, &amp;regs);
+    if (error == 0)
+        current-&gt;ptrace &amp;= ~PT_DTRACE;
+    putname(filename);
+ out:
+    return error;
+}</code></pre>
 
 
 <p>regs.ebx保存着系统调用execve的第一个参数，即可执行文件的路径名。因为路径名存储在用户空间中，这里要通过getname拷贝到内核空间中。getname在拷贝文件名时，先申请了一个page作为缓冲，然后再从用户空间拷贝字符串。为什么要申请一个页面而不使用进程的系统空间堆栈？首先这是一个绝对路径名，可能比较长，其次进程的系统空间堆栈大约为7K，比较紧缺，不宜滥用。用完文件名后，在函数的末尾调用putname释放掉申请的那个页面。</p>
@@ -262,7 +267,7 @@
 <p><img alt="do_execve流程" src="https://oscimg.oschina.net/oscnet/bdf5d5d0d078cd7a1a621e785358e7bbe6e.jpg" /></p>
 <h2 id="22-linux_binprm">2.2 linux_binprm结构<a class="headerlink" href="#22-linux_binprm" title="Permanent link">&para;</a></h2>
 <p>可执行文件（目标文件）作为一个文件之外，还有一些其他的专属信息，为了将运行一个可执行文件时所需的信息组织在一起，内核定义了linux_binprm结构，其定义如下：</p>
-<pre class="codehilite"><code>    &lt;include/linux/binfmts.h&gt;
+<pre class="codehilite"><code class="language-c">    &lt;include/linux/binfmts.h&gt;
     struct linux_binprm{
         char buf[BINPRM_BUF_SIZE];
         struct page *page[MAX_ARG_PAGES];
@@ -285,7 +290,7 @@
 <p>filename指向可执行文件的路径（该路径字符串已经拷贝到内核空间）。</p>
 <h2 id="23-linux_binfmtsearch_binary_handler">2.3 linux_binfmt结构以及search_binary_handler<a class="headerlink" href="#23-linux_binfmtsearch_binary_handler" title="Permanent link">&para;</a></h2>
 <p>每一种可执行文件都有对应的“装载器”，用来处理可执行文件的加载甚至是链接，此即linux_binfmt结构。其定义如下：</p>
-<pre class="codehilite"><code>    &lt;include/linux/binfmts.h&gt;
+<pre class="codehilite"><code class="language-c">    &lt;include/linux/binfmts.h&gt;
     struct linux_binfmt {
         struct linux_binfmt * next;
         struct module *module;
@@ -300,7 +305,7 @@
 <p>不同的“加载器”通过next指针构成一个链表，链表头即为formats。</p>
 <p>每个加载器就像是内核为每种格式的可执行文件设置的代理人，每当执行一个可执行文件时，内核遍历formats中的每个代理人，查看该可执行文件是否归某个代理人处理，如果对上了号，代理人则“认领”该可执行文件，负责后续的加载、执行等事务。这就是search_binary_handler函数的主要工作工程。但具体情况比这复杂，需要考虑内核尚未为某种格式的可执行文件设置代理人的情形。</p>
 <p>aout格式对应的inux_binfmt结构为aout_format，其定义如下:</p>
-<pre class="codehilite"><code>    &lt;fs/binfmt_aout.c&gt;
+<pre class="codehilite"><code class="language-c">    &lt;fs/binfmt_aout.c&gt;
     static struct linux_binfmt aout_format = {
                                     NULL, 
                                     THIS_MODULE, 
@@ -341,7 +346,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../Shell/net-toolsVSiproute2/" class="btn btn-neutral float-right" title="iproute2">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../assembly/EmbeddedAssembly/" class="btn btn-neutral float-right" title="Assembly">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../PSfork-vfork-clone/" class="btn btn-neutral" title="fork-vfork-clone"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -375,7 +380,7 @@
         <span><a href="../PSfork-vfork-clone/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../../Shell/net-toolsVSiproute2/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../assembly/EmbeddedAssembly/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
